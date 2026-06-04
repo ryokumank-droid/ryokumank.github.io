@@ -34,7 +34,7 @@ input,button{font-size:16px;touch-action:manipulation;}
 #line-warn-box h2{color:#06c755;font-size:20px;margin:0 0 12px;}
 #line-warn-box .step{background:#f0f0f0;border-radius:10px;padding:10px 14px;margin:8px 0;font-weight:700;font-size:15px;}
 #line-warn-box .arrow{font-size:22px;margin:2px 0;}
-#hud{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:16px;padding:8px 14px;background:linear-gradient(#0a0a1acc,transparent);pointer-events:none;flex-wrap:wrap;}
+#hud{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:16px;padding:8px 14px calc(8px + env(safe-area-inset-bottom));background:linear-gradient(#0a0a1acc,transparent);pointer-events:none;flex-wrap:wrap;}
 .stat{display:flex;align-items:center;gap:5px;font-size:12px;}
 .stat .val{font-size:17px;font-weight:900;color:#ffcc00;}
 .stat .lbl{color:#888;font-size:10px;}
@@ -132,10 +132,10 @@ input,button{font-size:16px;touch-action:manipulation;}
 #fs-btn:hover{background:#111133;color:#aabbff;}
 #fs-btn.mini{color:#ffcc44;border-color:#886622;background:#1a1400;}
 /* ── mobile joystick ── */
-#jzone{position:fixed;left:20px;bottom:30px;width:120px;height:120px;z-index:50;display:none;touch-action:none;}
+#jzone{position:fixed;left:calc(20px + env(safe-area-inset-left));bottom:calc(30px + env(safe-area-inset-bottom));width:120px;height:120px;z-index:50;display:none;touch-action:none;}
 #jbase{width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.3);}
 #jknob{position:absolute;top:50%;left:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:rgba(255,255,255,0.45);border:2px solid rgba(255,255,255,0.7);transition:none;}
-#battle-atk-btn{position:fixed;right:30px;bottom:40px;width:80px;height:80px;border-radius:50%;background:rgba(255,60,60,0.7);border:3px solid #ff4444;color:#fff;font-size:28px;z-index:50;display:none;touch-action:none;cursor:pointer;}
+#battle-atk-btn{position:fixed;right:calc(30px + env(safe-area-inset-right));bottom:calc(40px + env(safe-area-inset-bottom));width:80px;height:80px;border-radius:50%;background:rgba(255,60,60,0.7);border:3px solid #ff4444;color:#fff;font-size:28px;z-index:50;display:none;touch-action:none;cursor:pointer;}
 /* ── 合成モーダル ── */
 #synth-modal{position:fixed;inset:0;z-index:310;background:rgba(0,0,0,0.88);display:none;align-items:center;justify-content:center;flex-direction:column;}
 #synth-modal.open{display:flex;}
@@ -176,6 +176,9 @@ input,button{font-size:16px;touch-action:manipulation;}
 #name-inp:focus{border-color:#4488ff;}
 #name-ok{width:100%;padding:10px;background:#1a0060;border:2px solid #4488ff;color:#aaccff;border-radius:8px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:900;touch-action:manipulation;}
 #player-name-btn{padding:4px 10px;background:#0a0018;border:1px solid #334;color:#88aaff;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;margin-left:4px;touch-action:manipulation;pointer-events:auto;}
+#multi-btn{padding:4px 10px;background:#06131a;border:1px solid #227799;color:#66dfff;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;margin-left:4px;touch-action:manipulation;pointer-events:auto;}
+#multi-btn:hover{background:#0b2230;color:#aaffff;}
+#mob-multi-btn,#mobile-multi-btn,#room-open-btn,.mob-btn.multi,.mob-btn.m,.mobile-multi-btn{display:none!important;}
 /* ── Firebase設定 ── */
 #fb-setup{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,0.94);display:none;align-items:center;justify-content:center;}
 #fb-setup.open{display:flex;}
@@ -190,12 +193,26 @@ input,button{font-size:16px;touch-action:manipulation;}
 .fb-cancel{padding:9px 14px;background:#110022;border:1px solid #334;color:#556;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;}
 .fb-clear{padding:9px 14px;background:#1a0000;border:1px solid #441111;color:#ff4444;border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;}
 /* ── mobile action buttons ── */
-#mob-btns{position:fixed;right:16px;bottom:170px;z-index:50;display:none;flex-direction:column;gap:10px;align-items:flex-end;}
+#mob-btns{position:fixed;right:calc(16px + env(safe-area-inset-right));bottom:calc(170px + env(safe-area-inset-bottom));z-index:50;display:none;flex-direction:column;gap:10px;align-items:flex-end;}
 .mob-btn{width:68px;height:68px;border-radius:16px;border:2px solid;color:#fff;font-size:11px;font-weight:900;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;letter-spacing:0.5px;line-height:1.2;}
 .mob-btn .mb-ico{font-size:22px;line-height:1;}
 .mob-btn.e{background:rgba(0,60,120,0.85);border-color:#4488ff;}
 .mob-btn.o{background:rgba(60,0,120,0.85);border-color:#aa44ff;}
 .mob-btn.n{background:rgba(120,0,0,0.9);border-color:#ff3333;animation:boss-shake 0.3s infinite;}
+@media (max-width: 860px){
+  #hud{gap:10px;padding:6px 8px calc(6px + env(safe-area-inset-bottom));}
+  .stat{font-size:11px;gap:4px;}
+  .stat .val{font-size:15px;}
+  .stat .lbl{font-size:9px;}
+  #player-name-btn,#save-btn,#export-save-btn,#import-save-btn,#multi-btn,#fs-btn{font-size:10px;padding:4px 8px;margin-left:3px;}
+}
+@media (max-width: 760px){
+  #jzone{left:calc(10px + env(safe-area-inset-left));bottom:calc(14px + env(safe-area-inset-bottom));width:108px;height:108px;}
+  #battle-atk-btn{right:calc(10px + env(safe-area-inset-right));bottom:calc(18px + env(safe-area-inset-bottom));width:76px;height:76px;font-size:26px;}
+  #mob-btns{right:calc(10px + env(safe-area-inset-right));bottom:calc(112px + env(safe-area-inset-bottom));gap:8px;}
+  .mob-btn{width:60px;height:60px;border-radius:14px;font-size:10px;}
+  .mob-btn .mb-ico{font-size:19px;}
+}
 /* ── boss battle ── */
 #boss-battle{position:fixed;inset:0;z-index:280;background:radial-gradient(ellipse at 50% 30%,#1a0010 0%,#040008 100%);display:none;flex-direction:column;align-items:center;overflow-y:auto;}
 #boss-battle.open{display:flex;}
@@ -932,11 +949,30 @@ C(200,'Cannelloni Dragoni','eternal',500000,80000,'croc',0xff9933),
 C(252,'ケルベロス','eternal',600000,95000,'croc',0xcc3300),
 C(253,'Cannone Maledettone','eternal',550000,88000,'croc',0x446633),
 C(254,'gest666','eternal',666000,99999,'croc',0xee1100),
+// ── EXTRA HIGH RARITY ─────────────────────────────────────────────
+C(260,'Tralalero Stella Nera','brainrotgod',185000,27800,'slim',0x1111ff),
+C(261,'Bombardiro Plasma Reale','brainrotgod',192000,28800,'croc',0xff2255),
+C(262,'Cappuccino Galattico','brainrotgod',188000,28200,'human',0xffdd88),
+C(263,'Bananito Ultra Instinct','brainrotgod',196000,29400,'fat',0xffee22),
+C(264,'Glorbo Diamante Vivo','brainrotgod',205000,30750,'blob',0x66ffff),
+C(265,'La Vaca Nebulosa','secret',240000,36000,'fat',0xf6f2dd),
+C(266,'Frigo Fantasma Notturno','secret',245000,36750,'human',0xccf4ff),
+C(267,'Squalo Invisibile','secret',255000,38250,'slim',0x77ddff),
+C(268,'Tung Tung Segreto Rosso','secret',250000,37500,'stick',0xff3333),
+C(269,'Toilettino Assoluto','secret',260000,39000,'toilet',0xeeeeff),
+C(270,'Dio della Pasta Dorata','god',340000,51000,'human',0xffcc33),
+C(271,'Tralalero Divino','god',360000,54000,'slim',0x66ffff),
+C(272,'Bombardiro Celestiale','god',380000,57000,'croc',0xff5533),
+C(273,'Capybara del Paradiso','god',350000,52500,'fat',0xddbb77),
+C(274,'Tung Tung Eternale','eternal',620000,98000,'stick',0xffaa11),
+C(275,'Frigo Infinito','eternal',640000,102000,'human',0xddeeff),
+C(276,'Squalo dell Eternita','eternal',680000,108000,'slim',0x1199ff),
+C(277,'Glorbo Immortale X','eternal',720000,115000,'blob',0x55ffcc),
 ];
 
 const RARITY_COLORS={common:0x8899aa,rare:0x44ff88,epic:0xcc66ff,legendary:0xff8800,Mythic:0xff0055,brainrotgod:0xff00ff,secret:0x00ffff,eternal:0xffaa00,god:0xffffff};
 const RARITY_SCALE={common:0.8,rare:1.0,epic:1.2,legendary:1.4,Mythic:1.7,brainrotgod:2.0,secret:2.3,eternal:2.6,god:2.6};
-const SPAWN_WEIGHTS={common:40,rare:20,epic:7,legendary:5,Mythic:4,brainrotgod:3,secret:2,eternal:0,god:0}; // eternal/godは特殊入手のみ
+const SPAWN_WEIGHTS={common:70,rare:22,epic:6,legendary:2.2,Mythic:1.1,brainrotgod:0.35,secret:0.12,eternal:0,god:0}; // eternal/godは特殊入手のみ
 const RARITY_ORDER=['common','epic','legendary','Mythic','Mythic','brainrotgod','secret','eternal','god'];
 const RARITY_RANK={common:0,rare:1,epic:2,legendary:3,Mythic:4,brainrotgod:5,secret:6,eternal:7,god:8};
 // 戦闘力（レアリティ基準値 × IDによる個体差）
@@ -3892,7 +3928,7 @@ function endBattle(won){
   if(isMobile){document.getElementById('jzone').style.display='flex';document.getElementById('battle-atk-btn').style.display='none';}
 }
 // god/brainrotgodは通常宝箱から除外。godボス撃破1%で神の宝箱、godplus撃破でGOD+宝箱
-const CHEST_TBL=[{w:15,r:'secret'},{w:16,r:'Mythic'},{w:27,r:'legendary'},{w:22,r:'epic'},{w:13,r:'rare'},{w:7,r:'common'}];
+const CHEST_TBL=[{w:1.2,r:'secret'},{w:4.8,r:'Mythic'},{w:12,r:'legendary'},{w:22,r:'epic'},{w:30,r:'rare'},{w:30,r:'common'}];
 function openChest(){
   if(BS.chestDone)return; BS.chestDone=true;
   document.getElementById('bb-chest-opn').style.display='none';
@@ -5275,9 +5311,24 @@ if(document.readyState==='loading'){
 //  マルチプレイヤー（Firebase リアルタイム位置同期）
 // ================================================================
 let _roomCode=null,_roomRef=null,_roomListener=null,_walkerRef=null,_walkerAddedCb=null,_walkerRemovedCb=null;
+let _roomJoinReady=false;
+const _roomKnownPlayers=new Set();
 const _otherPlayers={};
 
 function _rpPath(code){return 'brainrot/rooms/'+code.replace(/[.#$[\]\/]/g,'_').slice(0,24);}
+function _isRoomMetaKey(k){return ['walkers','chat','event','boss','signal'].includes(k);}
+function _notifyFriendLogin(k,v){
+  if(!_roomJoinReady||_roomKnownPlayers.has(k))return;
+  const nm=(v&&v.name)||k;
+  showPopup('ログイン通知\n'+nm+' が参加しました！','#44ddff');
+  try{_appendChatLine({name:'SYSTEM',text:nm+' がログインしました',t:Date.now()});}catch(e){}
+}
+function _notifyFriendLogout(k){
+  if(!_roomJoinReady)return;
+  const nm=(_otherPlayers[k]&&_otherPlayers[k].displayName)||k;
+  showPopup(nm+' が退出しました','#6688aa');
+  try{_appendChatLine({name:'SYSTEM',text:nm+' が退出しました',t:Date.now()});}catch(e){}
+}
 
 function joinRoom(code){
   code=(code||'').trim().toUpperCase();
@@ -5287,17 +5338,22 @@ function joinRoom(code){
   if(_roomCode) leaveRoom();
   _roomCode=code;
   _roomRef=fbDb.ref(_rpPath(code));
+  _roomJoinReady=false;
+  _roomKnownPlayers.clear();
   broadcastMyPos();
   fbDb.ref(_rpPath(code)+'/'+fbSaveName()).onDisconnect().remove();
   _roomListener=_roomRef.on('value',snap=>{
     const data=snap.val()||{};
     const seen=new Set();
     Object.entries(data).forEach(([k,v])=>{
-      if(k==='walkers'||k===fbSaveName())return;
+      if(_isRoomMetaKey(k)||k===fbSaveName())return;
+      _notifyFriendLogin(k,v);
       seen.add(k);
       _updateOtherPlayer(k,v);
     });
-    Object.keys(_otherPlayers).forEach(k=>{if(!seen.has(k))_removeOtherPlayer(k);});
+    seen.forEach(k=>_roomKnownPlayers.add(k));
+    if(!_roomJoinReady)_roomJoinReady=true;
+    Object.keys(_otherPlayers).forEach(k=>{if(!seen.has(k)){_notifyFriendLogout(k);_removeOtherPlayer(k);_roomKnownPlayers.delete(k);}});
     _renderRoomList(data);
   });
   // 管理者スポーンウォーカー同期リスナー
@@ -5430,18 +5486,22 @@ function sendChatMsg(text){
   fbDb.ref(_rpPath(_roomCode)+'/chat').push({name:PLAYER_NAME,text,t:Date.now()}).catch(()=>{});
   if(inp){inp.value='';}
 }
+function _chatEsc(s){return String(s||'').replace(/</g,'&lt;');}
+function _appendChatLine(v){
+  const box=document.getElementById('chat-box'); if(!box||!v||!v.text)return;
+  const el=document.createElement('div');
+  el.className='chat-msg';
+  const isMe=v.name===PLAYER_NAME;
+  el.innerHTML=`<span class="chat-name${isMe?' me':''}">${_chatEsc(v.name)}</span>: ${_chatEsc(v.text)}`;
+  box.appendChild(el);
+  box.scrollTop=box.scrollHeight;
+  while(box.children.length>30)box.removeChild(box.firstChild);
+}
 function _initChat(){
   _chatRef=fbDb.ref(_rpPath(_roomCode)+'/chat');
   _chatAdded=_chatRef.limitToLast(30).on('child_added',snap=>{
     const v=snap.val(); if(!v||!v.text)return;
-    const box=document.getElementById('chat-box'); if(!box)return;
-    const el=document.createElement('div');
-    el.className='chat-msg';
-    const isMe=v.name===PLAYER_NAME;
-    el.innerHTML=`<span class="chat-name${isMe?' me':''}">${v.name.replace(/</g,'&lt;')}</span>: ${v.text.replace(/</g,'&lt;')}`;
-    box.appendChild(el);
-    box.scrollTop=box.scrollHeight;
-    while(box.children.length>30)box.removeChild(box.firstChild);
+    _appendChatLine(v);
   });
   // チャットボタンを表示
   document.getElementById('chat-open-btn').style.display='';
@@ -5664,6 +5724,8 @@ function leaveRoom(){
   }
   _cleanupCoopBoss(false);
   Object.keys(_otherPlayers).forEach(k=>_removeOtherPlayer(k));
+  _roomJoinReady=false;
+  _roomKnownPlayers.clear();
   destroyOtherBase(); _otherBase._owner=null;
   stopVoice(); _cleanupChat();
   _roomCode=null;_roomRef=null;_roomListener=null;
