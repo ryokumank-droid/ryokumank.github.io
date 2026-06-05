@@ -4270,8 +4270,7 @@ let PLAYER_NAME='Player1';
 try{PLAYER_NAME=LS.getItem('brainrot_playername')||_getCookie('brainrot_pn')||'Player1';}catch(e){}
 // Cookie にも保存しておく（より長期間・URLをまたいで残る）
 try{_setCookie('brainrot_pn',PLAYER_NAME);}catch(e){}
-// ログイン記録（ページ読み込み時）— Firebase未接続でも即記録、接続後は recordLoginEvent で自動送信
-(function(){const log=JSON.parse(LS.getItem('brainrot_login_log')||'[]');log.push({name:PLAYER_NAME,time:Date.now()});if(log.length>200)log.splice(0,log.length-200);LS.setItem('brainrot_login_log',JSON.stringify(log));})();
+
 function getSaveKey(){return 'brainrot_save_'+PLAYER_NAME;}
 function openNamePopup(){
   const p=document.getElementById('name-popup');
@@ -4559,8 +4558,6 @@ function initFirebase(){
         fbReady=true;
         showPopup('☁️ クラウド接続完了！','#00ff88');
         if(_pendingRestoreCheck) _tryCloudRestore();
-        // ページ読み込み時のログをFirebaseにも送信
-        try{fbDb.ref('brainrot/loginlog').push(_loginLogEntry(PLAYER_NAME)).catch(()=>{});}catch(e){}
       }catch(e){console.warn('Firebase init error',e);showPopup('Firebase接続エラー\nURLとAPIキーを確認して','#ff4444');}
     };
     document.head.appendChild(s2);
