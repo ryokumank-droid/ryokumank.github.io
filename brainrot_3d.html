@@ -4129,7 +4129,7 @@ function updateSynthPreview(){
   const ranks=synthSelected.map(i=>RARITY_ORDER_LIST.indexOf(G.baseChars[i].char.rarity));
   const avg=ranks.reduce((s,r)=>s+r,0)/5;
   const boost=Math.random()<0.3?2:1; // 30%で2段階UP
-  const resultRank=Math.min(7,Math.floor(avg)+boost);
+  const resultRank=Math.min(6,Math.floor(avg)+boost);
   const resultRar=RARITY_ORDER_LIST[resultRank];
   const col='#'+(RARITY_COLORS[resultRar]??0xffffff).toString(16).padStart(6,'0');
   const pool=CHARS.filter(c=>c.rarity===resultRar);
@@ -4141,7 +4141,7 @@ function execSynth(){
   const ranks=synthSelected.map(i=>RARITY_ORDER_LIST.indexOf(G.baseChars[i].char.rarity));
   const avg=ranks.reduce((s,r)=>s+r,0)/5;
   const boost=Math.random()<0.3?2:1;
-  const resultRank=Math.min(7,Math.floor(avg)+boost);
+  const resultRank=Math.min(6,Math.floor(avg)+boost);
   const resultRar=RARITY_ORDER_LIST[resultRank];
   // 素材を強い順に削除（インデックスがずれないよう降順）
   synthSelected.sort((a,b)=>b-a).forEach(i=>{
@@ -4156,15 +4156,11 @@ function execSynth(){
   const ch=pool[Math.floor(Math.random()*pool.length)];
   if(!ch)return;
   const mesh=buildCharMesh(ch);
-  const a=Math.random()*Math.PI*2, r=Math.random()*(BASE_R-1.5)+1;
-  mesh.position.set(BASE_X+Math.cos(a)*r,0,BASE_Z+Math.sin(a)*r);
-  mesh.userData.ownBase=true;
-  scene.add(mesh);
-  G.baseChars.push({char:ch,mesh,label:null,mutations:[]});
+  placeAtBase(mesh,ch,rollMutations());
   calcIncome(); updateCollectionUI(); updateHUD();
   const col='#'+(RARITY_COLORS[resultRar]??0xffffff).toString(16).padStart(6,'0');
-  showPopup('✨ 合成成功！\n'+ch.name+'\n('+( RLBL[resultRar]??resultRar)+')',col);
-  if(resultRar==='god')showGodBanner(ch.name);
+  showPopup('✨ 合成成功！\n'+ch.name+'\n('+(RLBL[resultRar]??resultRar)+')',col);
+  if(['eternal','secret','brainrotgod'].includes(resultRar))showGodBanner(ch.name);
   for(let i=0;i<10;i++) setTimeout(()=>launchFirework((Math.random()-0.5)*20,4+Math.random()*6,(Math.random()-0.5)*18,boost===2),i*120);
 }
 function mobTapS(){
@@ -4198,10 +4194,7 @@ function claimBonus(){
   G.money+=money;
   if(bonusChar&&G.baseChars.length<BASE_CAP){
     const mesh=buildCharMesh(bonusChar);
-    const a=Math.random()*Math.PI*2,r=Math.random()*(BASE_R-1.5)+1;
-    mesh.position.set(BASE_X+Math.cos(a)*r,0,BASE_Z+Math.sin(a)*r);
-    scene.add(mesh);
-    G.baseChars.push({char:bonusChar,mesh,label:null,mutations:[]});
+    placeAtBase(mesh,bonusChar,rollMutations());
     calcIncome(); updateCollectionUI();
   }
   updateHUD();
@@ -4288,6 +4281,7 @@ function applyName(){
   document.getElementById('player-name-btn').textContent='👤 '+val;
   closeNamePopup();
   showPopup('名前を「'+val+'」に変更！','#4488ff');
+  setTimeout(()=>{try{checkLoginBonus();}catch(e){}},800);
   // クラウドに同名のデータがあれば確認
   if(fbReady&&fbDb){
     fbDb.ref('brainrot/saves/'+fbSaveName()).once('value').then(snap=>{
@@ -5203,7 +5197,7 @@ function _playGachaAnimation(outcome){
 
     // 結果カード内容
     const rarCol = outcome.type==='char' ? _rarityHexStr(outcome.rarity) : '#ffcc00';
-    const rarLabel= outcome.type==='char' ? (RARITY_LABEL[outcome.rarity]||outcome.rarity) : 'BUR BONUS';
+    const rarLabel= outcome.type==='char' ? (RLBL[outcome.rarity]||outcome.rarity) : 'BUR BONUS';
     let icon, name, sub;
 
     if(outcome.type==='bur'){
