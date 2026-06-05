@@ -213,6 +213,91 @@ input,button{font-size:16px;touch-action:manipulation;}
   .mob-btn{width:60px;height:60px;border-radius:14px;font-size:10px;}
   .mob-btn .mb-ico{font-size:19px;}
 }
+/* ── gacha button (mobile left) ── */
+#gacha-mob-btn{
+  position:fixed;left:calc(16px + env(safe-area-inset-left));
+  bottom:calc(160px + env(safe-area-inset-bottom));
+  width:72px;height:72px;border-radius:18px;
+  background:linear-gradient(135deg,#2a006a,#660099);
+  border:2px solid #cc44ff;color:#fff;font-size:10px;font-weight:900;
+  display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;cursor:pointer;z-index:50;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  box-shadow:0 0 14px #aa00ff88;letter-spacing:0.5px;
+}
+#gacha-mob-btn .gm-ico{font-size:24px;line-height:1;}
+#gacha-mob-btn .gm-cost{font-size:9px;color:#dd88ff;}
+/* ── gacha PC button (HUD) ── */
+#gacha-pc-btn{
+  padding:5px 12px;background:linear-gradient(135deg,#2a006a,#660099);
+  border:1px solid #cc44ff;color:#dd88ff;border-radius:6px;
+  cursor:pointer;font-family:inherit;font-size:11px;font-weight:900;
+  touch-action:manipulation;pointer-events:auto;
+  box-shadow:0 0 8px #aa00ff44;white-space:nowrap;
+}
+#gacha-pc-btn:hover{background:linear-gradient(135deg,#3a0088,#880099);color:#fff;}
+/* ── gacha overlay ── */
+#gacha-overlay{
+  position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,0);display:none;
+  align-items:center;justify-content:center;flex-direction:column;
+  pointer-events:none;
+}
+#gacha-overlay.active{display:flex;pointer-events:all;}
+#gacha-orb{
+  width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#ffffff,#aa44ff,#330066);
+  box-shadow:0 0 60px #cc44ff,0 0 120px #8800ff;
+  animation:gacha-spin 0.8s linear infinite;
+  display:none;
+}
+#gacha-overlay.active #gacha-orb{display:block;}
+#gacha-result-card{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(0);
+  background:#0a0018;border:3px solid #cc44ff;border-radius:16px;
+  padding:28px 36px;text-align:center;font-family:monospace;
+  min-width:260px;opacity:0;transition:none;
+}
+#gacha-result-card.show{
+  animation:gacha-card-in 0.5s cubic-bezier(0.17,0.89,0.32,1.28) forwards;
+}
+#gacha-res-icon{font-size:52px;margin-bottom:8px;}
+#gacha-res-rarity{font-size:11px;font-weight:900;letter-spacing:3px;margin-bottom:4px;}
+#gacha-res-name{font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;}
+#gacha-res-sub{font-size:12px;color:#888;}
+#gacha-tap-hint{position:absolute;bottom:80px;font-size:13px;color:#888;font-family:monospace;animation:gacha-blink 1s infinite;}
+/* ── gacha particles ── */
+.gacha-particle{
+  position:fixed;pointer-events:none;border-radius:50%;z-index:501;
+  animation:gacha-particle-fly 1.2s ease-out forwards;
+}
+@keyframes gacha-spin{
+  0%{transform:rotate(0deg) scale(1);}
+  50%{transform:rotate(180deg) scale(1.1);}
+  100%{transform:rotate(360deg) scale(1);}
+}
+@keyframes gacha-card-in{
+  0%{transform:translate(-50%,-50%) scale(0) rotate(-10deg);opacity:0;}
+  100%{transform:translate(-50%,-50%) scale(1) rotate(0deg);opacity:1;}
+}
+@keyframes gacha-particle-fly{
+  0%{opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(0.2);}
+}
+@keyframes gacha-blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes gacha-bg-pulse{
+  0%,100%{background:rgba(0,0,30,0.88);}
+  50%{background:rgba(20,0,60,0.95);}
+}
+@keyframes gacha-orb-burst{
+  0%{transform:scale(1);opacity:1;}
+  60%{transform:scale(2.5);opacity:0.5;}
+  100%{transform:scale(4);opacity:0;}
+}
+@media(max-width:760px){
+  #gacha-mob-btn{width:62px;height:62px;border-radius:15px;font-size:9px;bottom:calc(148px + env(safe-area-inset-bottom));}
+  #gacha-mob-btn .gm-ico{font-size:21px;}
+}
 /* ── boss battle ── */
 #boss-battle{position:fixed;inset:0;z-index:280;background:radial-gradient(ellipse at 50% 30%,#1a0010 0%,#040008 100%);display:none;flex-direction:column;align-items:center;overflow-y:auto;}
 #boss-battle.open{display:flex;}
@@ -412,7 +497,25 @@ input,button{font-size:16px;touch-action:manipulation;}
   <button id="export-save-btn" onclick="exportSaveData()">📤 書出</button>
   <button id="import-save-btn" onclick="importSaveData()">📥 読込</button>
   <button id="multi-btn" onclick="document.getElementById('room-panel').classList.add('open')">🌐 マルチ</button>
+  <button id="gacha-pc-btn" onclick="doGacha()">🎰 ガチャ <span style="font-size:9px;color:#dd88ff;">100🔮</span></button>
   <button id="fs-btn" onclick="toggleFullscreen()" title="全画面">⛶</button>
+</div>
+<!-- ガチャ スマホ左ボタン -->
+<button id="gacha-mob-btn" onclick="doGacha()">
+  <span class="gm-ico">🎰</span>
+  ガチャ
+  <span class="gm-cost">100🔮</span>
+</button>
+<!-- ガチャ演出オーバーレイ -->
+<div id="gacha-overlay">
+  <div id="gacha-orb"></div>
+  <div id="gacha-result-card">
+    <div id="gacha-res-icon">✨</div>
+    <div id="gacha-res-rarity"></div>
+    <div id="gacha-res-name"></div>
+    <div id="gacha-res-sub"></div>
+  </div>
+  <div id="gacha-tap-hint">タップして閉じる</div>
 </div>
 <div id="jzone"><div id="jbase"><div id="jknob"></div></div></div>
 <button id="battle-atk-btn" onclick="timingClick()">⚔</button>
@@ -587,6 +690,15 @@ input,button{font-size:16px;touch-action:manipulation;}
             <div class="opt-label">⏱ ラッキーブロック頻度 <span id="opt-lb-val">3</span></div>
             <input type="range" id="opt-lb" min="1" max="5" value="3" step="1">
           </div>
+        </div>
+      </div>
+
+      <!-- ログイン履歴 -->
+      <div class="admin-section">
+        <div class="admin-section-title">▶ LOGIN LOG</div>
+        <div class="admin-section-body" style="max-height:220px;overflow-y:auto;">
+          <div id="adm-login-log" style="display:flex;flex-direction:column;gap:0;font-size:11px;font-family:monospace;"></div>
+          <button class="admin-btn danger" id="adm-clear-log" style="margin-top:8px;width:100%;">🗑 ログ消去</button>
         </div>
       </div>
 
@@ -4158,6 +4270,8 @@ let PLAYER_NAME='Player1';
 try{PLAYER_NAME=LS.getItem('brainrot_playername')||_getCookie('brainrot_pn')||'Player1';}catch(e){}
 // Cookie にも保存しておく（より長期間・URLをまたいで残る）
 try{_setCookie('brainrot_pn',PLAYER_NAME);}catch(e){}
+// ログイン記録（ページ読み込み時）— Firebase未接続でも即記録、接続後は recordLoginEvent で自動送信
+(function(){const log=JSON.parse(LS.getItem('brainrot_login_log')||'[]');log.push({name:PLAYER_NAME,time:Date.now()});if(log.length>200)log.splice(0,log.length-200);LS.setItem('brainrot_login_log',JSON.stringify(log));})();
 function getSaveKey(){return 'brainrot_save_'+PLAYER_NAME;}
 function openNamePopup(){
   const p=document.getElementById('name-popup');
@@ -4171,6 +4285,7 @@ function applyName(){
   if(!val)return;
   PLAYER_NAME=val;
   LS.setItem('brainrot_playername',val);try{_setCookie('brainrot_pn',val);}catch(e){}
+  recordLoginEvent(val);
   document.getElementById('player-name-btn').textContent='👤 '+val;
   closeNamePopup();
   showPopup('名前を「'+val+'」に変更！','#4488ff');
@@ -4444,6 +4559,8 @@ function initFirebase(){
         fbReady=true;
         showPopup('☁️ クラウド接続完了！','#00ff88');
         if(_pendingRestoreCheck) _tryCloudRestore();
+        // ページ読み込み時のログをFirebaseにも送信
+        try{fbDb.ref('brainrot/loginlog').push(_loginLogEntry(PLAYER_NAME)).catch(()=>{});}catch(e){}
       }catch(e){console.warn('Firebase init error',e);showPopup('Firebase接続エラー\nURLとAPIキーを確認して','#ff4444');}
     };
     document.head.appendChild(s2);
@@ -4609,6 +4726,7 @@ document.addEventListener('touchend',e=>{
   if(!isMobile)return;
   document.getElementById('jzone').style.display='flex';
   document.getElementById('mob-btns').style.display='flex';
+  document.getElementById('gacha-mob-btn').style.display='flex';
   document.getElementById('controls').style.display='none';
   document.getElementById('side-panel').style.display='none';
   const jzone=document.getElementById('jzone');
@@ -4851,6 +4969,7 @@ function openOptions(){
   document.getElementById('adm-base').textContent=G.baseChars.length+'/'+BASE_CAP;
   document.getElementById('adm-lb').textContent=G.luckyBlocks.length;
   updateAdminLuck();
+  renderLoginLog();
   document.getElementById('options-modal').classList.add('open');
   document.exitPointerLock();
 }
@@ -4953,6 +5072,246 @@ document.getElementById('adm-clear-base').addEventListener('click',()=>{
   document.getElementById('adm-income').textContent='$'+G.income.toLocaleString();
 });
 document.getElementById('adm-reset-codes').addEventListener('click',()=>{usedCodes.clear();});
+
+// ================================================================
+//  ガチャ
+// ================================================================
+const GACHA_COST = 100;
+
+// レアリティランク定義
+const _GACHA_HIGH = ['brainrotgod','secret','eternal','god']; // brainrotgod以上
+const _GACHA_LOW  = ['common','rare','epic','legendary','Mythic']; // brainrotgod未満
+
+// ガチャ高レアリティ内の重み
+const _GACHA_HIGH_W = {brainrotgod:55, secret:30, eternal:12, god:3};
+// ガチャ低レアリティ内の重み
+const _GACHA_LOW_W  = {common:25, rare:30, epic:22, legendary:16, Mythic:7};
+
+function _gachaPickRarity(pool, weights){
+  const total = pool.reduce((s,r)=>(s+(weights[r]||0)),0);
+  let rv = Math.random()*total;
+  for(const r of pool){rv -= (weights[r]||0); if(rv<0) return r;}
+  return pool[pool.length-1];
+}
+
+function _gachaPickChar(rarity){
+  const pool = CHARS.filter(c=>c.rarity===rarity);
+  return pool.length ? pool[Math.floor(Math.random()*pool.length)] : null;
+}
+
+function _spawnGachaParticles(color, count=24){
+  const cx = window.innerWidth/2, cy = window.innerHeight/2;
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.className='gacha-particle';
+    const size = 6+Math.random()*12;
+    const angle = Math.random()*Math.PI*2;
+    const dist  = 120+Math.random()*220;
+    el.style.cssText=`width:${size}px;height:${size}px;background:${color};
+      left:${cx}px;top:${cy}px;
+      --dx:${Math.cos(angle)*dist}px;--dy:${Math.sin(angle)*dist}px;
+      animation-duration:${0.7+Math.random()*0.8}s;`;
+    document.body.appendChild(el);
+    setTimeout(()=>el.remove(), 1600);
+  }
+}
+
+function _shakeScreen(ms=400){
+  document.body.style.animation=`boss-shake ${ms}ms`;
+  setTimeout(()=>{document.body.style.animation='';},ms);
+}
+
+let _gachaOpen=false;
+
+function doGacha(){
+  if(_gachaOpen) return;
+  if(G.bur < GACHA_COST){
+    showPopup(`🔮 BUR不足！\n100🔮 必要`,'#ff4444');
+    return;
+  }
+
+  // コスト消費
+  G.bur -= GACHA_COST;
+  updateHUD();
+
+  // 抽選
+  const roll = Math.random();
+  let outcome; // {type:'bur',amount} | {type:'char',char,rarity}
+
+  if(roll < 0.10){
+    // 10%: brainrotgod以上
+    const rar  = _gachaPickRarity(_GACHA_HIGH, _GACHA_HIGH_W);
+    const char = _gachaPickChar(rar);
+    outcome = {type:'char', char, rarity:rar, tier:'high'};
+  } else if(roll < 0.70){
+    // 60%: +50 BUR
+    const bonus = 40 + Math.floor(Math.random()*30); // 40~69
+    outcome = {type:'bur', amount:bonus};
+  } else {
+    // 30%: brainrotgod未満のキャラ
+    const rar  = _gachaPickRarity(_GACHA_LOW, _GACHA_LOW_W);
+    const char = _gachaPickChar(rar);
+    outcome = {type:'char', char, rarity:rar, tier:'low'};
+  }
+
+  _playGachaAnimation(outcome);
+}
+
+function _rarityHexStr(rar){
+  const v = RARITY_COLORS[rar]||0xcc44ff;
+  return '#'+v.toString(16).padStart(6,'0');
+}
+
+function _playGachaAnimation(outcome){
+  _gachaOpen = true;
+  const ov  = document.getElementById('gacha-overlay');
+  const orb = document.getElementById('gacha-orb');
+  const card= document.getElementById('gacha-result-card');
+
+  // オーバーレイ表示
+  ov.style.background='rgba(0,0,0,0)';
+  ov.classList.add('active');
+  card.classList.remove('show');
+  card.style.opacity='0';
+  orb.style.animation='gacha-spin 0.6s linear infinite';
+
+  // フェードイン背景
+  let bgAlpha=0;
+  const fadeIn=setInterval(()=>{
+    bgAlpha=Math.min(bgAlpha+0.07,0.88);
+    ov.style.background=`rgba(0,0,20,${bgAlpha})`;
+    if(bgAlpha>=0.88) clearInterval(fadeIn);
+  },30);
+
+  // パーティクル連続発射
+  const particleColors=['#cc44ff','#ff44cc','#4488ff','#ffcc00','#44ffcc'];
+  let pc=0;
+  const pTimer=setInterval(()=>{
+    _spawnGachaParticles(particleColors[pc%particleColors.length],8);
+    pc++;
+  },180);
+
+  // 1.4秒後にオーブ爆発→結果表示
+  setTimeout(()=>{
+    clearInterval(pTimer);
+    orb.style.animation='gacha-orb-burst 0.4s ease-out forwards';
+
+    const isHigh = outcome.type==='char' && outcome.tier==='high';
+    const isBur  = outcome.type==='bur';
+
+    // 大量パーティクル爆発
+    const burstCol = isHigh ? '#ff00ff' : isBur ? '#ffcc00' : '#44aaff';
+    _spawnGachaParticles(burstCol, isHigh?48:isBur?32:24);
+    if(isHigh) _shakeScreen(500);
+
+    // 結果カード内容
+    const rarCol = outcome.type==='char' ? _rarityHexStr(outcome.rarity) : '#ffcc00';
+    const rarLabel= outcome.type==='char' ? (RARITY_LABEL[outcome.rarity]||outcome.rarity) : 'BUR BONUS';
+    let icon, name, sub;
+
+    if(outcome.type==='bur'){
+      icon='🔮'; name=`+${outcome.amount} BUR`;
+      sub='BURを獲得！';
+      G.bur += outcome.amount;
+      updateHUD();
+    } else {
+      const c=outcome.char;
+      icon = isHigh ? '💥' : '✨';
+      name = c ? c.name : '???';
+      sub  = c ? `+$${c.income}/s` : '';
+      if(c) setTimeout(()=>spawnWalkerForce(c), 600);
+    }
+
+    card.style.borderColor = rarCol;
+    card.style.boxShadow   = isHigh ? `0 0 40px ${rarCol},0 0 80px ${rarCol}88` : `0 0 20px ${rarCol}66`;
+    document.getElementById('gacha-res-icon').textContent  = icon;
+    document.getElementById('gacha-res-rarity').textContent= rarLabel;
+    document.getElementById('gacha-res-rarity').style.color= rarCol;
+    document.getElementById('gacha-res-name').textContent  = name;
+    document.getElementById('gacha-res-name').style.color  = isHigh ? rarCol : '#fff';
+    document.getElementById('gacha-res-sub').textContent   = sub;
+
+    // 高レアはさらに背景フラッシュ
+    if(isHigh){
+      ov.style.background=`${rarCol}33`;
+      setTimeout(()=>{ov.style.background='rgba(0,0,20,0.88)';},300);
+      setTimeout(()=>{ov.style.background=`${rarCol}22`;},600);
+      setTimeout(()=>{ov.style.background='rgba(0,0,20,0.88)';},900);
+    }
+
+    setTimeout(()=>{
+      card.classList.add('show');
+      card.style.opacity='1';
+    },50);
+
+    // タップ/クリックで閉じる
+    const close=()=>{
+      ov.classList.remove('active');
+      card.classList.remove('show');
+      orb.style.animation='gacha-spin 0.8s linear infinite';
+      _gachaOpen=false;
+      ov.removeEventListener('click',close);
+    };
+    setTimeout(()=>ov.addEventListener('click',close),800);
+
+  },1400);
+}
+
+function _loginLogEntry(name){return {name,time:Date.now()};}
+function recordLoginEvent(name){
+  // localStorage
+  const log=JSON.parse(LS.getItem('brainrot_login_log')||'[]');
+  log.push(_loginLogEntry(name));
+  if(log.length>200)log.splice(0,log.length-200);
+  LS.setItem('brainrot_login_log',JSON.stringify(log));
+  // Firebase（接続済みなら全デバイス共有）
+  if(fbReady&&fbDb){
+    fbDb.ref('brainrot/loginlog').push(_loginLogEntry(name)).catch(()=>{});
+  }
+}
+
+function _renderLogEntries(entries){
+  const el=document.getElementById('adm-login-log');
+  if(!el)return;
+  if(!entries||entries.length===0){el.innerHTML='<div style="color:#444;font-size:10px;padding:4px 0;">記録なし</div>';return;}
+  const now=Date.now();
+  el.innerHTML=entries.slice(0,100).map(e=>{
+    const mins=Math.round((now-e.time)/60000);
+    const timeStr=mins<1?'たった今':mins<60?mins+'分前':Math.round(mins/60)+'時間前';
+    const d=new Date(e.time);
+    const dateStr=`${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid #1a0800;">
+      <span style="color:#ffcc88;font-weight:900;">${e.name}</span>
+      <span style="color:#888;font-size:10px;">${dateStr}</span>
+      <span style="color:#ff8844;font-size:10px;">${timeStr}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderLoginLog(){
+  const el=document.getElementById('adm-login-log');
+  if(!el)return;
+  if(fbReady&&fbDb){
+    el.innerHTML='<div style="color:#555;font-size:10px;padding:4px 0;">読み込み中...</div>';
+    fbDb.ref('brainrot/loginlog').orderByChild('time').limitToLast(100).once('value').then(snap=>{
+      const entries=[];
+      snap.forEach(c=>{entries.push(c.val());});
+      _renderLogEntries(entries.reverse());
+    }).catch(()=>{
+      const log=JSON.parse(LS.getItem('brainrot_login_log')||'[]').slice().reverse();
+      _renderLogEntries(log);
+    });
+  } else {
+    const log=JSON.parse(LS.getItem('brainrot_login_log')||'[]').slice().reverse();
+    _renderLogEntries(log);
+  }
+}
+
+document.getElementById('adm-clear-log').addEventListener('click',()=>{
+  LS.setItem('brainrot_login_log','[]');
+  if(fbReady&&fbDb){fbDb.ref('brainrot/loginlog').remove().catch(()=>{});}
+  renderLoginLog();
+});
 function setAdminBattlePower(v){
   adminBattlePower=v;
   const el=document.getElementById('adm-pw-val');
@@ -5769,6 +6128,7 @@ function startWithName(){
   }
   PLAYER_NAME=val;
   LS.setItem('brainrot_playername',val);try{_setCookie('brainrot_pn',val);}catch(e){}
+  recordLoginEvent(val);
   try{document.getElementById('player-name-btn').textContent='👤 '+val;}catch(e){}
   const hasData=!!LS.getItem('brainrot_save_'+val);
   document.getElementById('startup-screen').style.display='none';
