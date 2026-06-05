@@ -48,6 +48,7 @@ input,button{font-size:16px;touch-action:manipulation;}
 #event-popup{position:fixed;top:20%;left:50%;transform:translateX(-50%);z-index:50;pointer-events:none;font-size:clamp(18px,3.5vw,32px);font-weight:900;text-align:center;text-shadow:3px 3px 0 #000;display:none;animation:pop-anim 2.5s forwards;line-height:1.4;}
 @keyframes pop-anim{0%{opacity:0;transform:translateX(-50%) scale(0.5);}18%{opacity:1;transform:translateX(-50%) scale(1.2);}80%{opacity:1;transform:translateX(-50%) scale(1);}100%{opacity:0;transform:translateX(-50%) scale(0.9);}}
 #base-hint{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:20;font-size:14px;font-weight:900;color:#ffcc00;text-shadow:0 0 10px #ff8800;display:none;pointer-events:none;animation:pulse-hint 1s ease-in-out infinite alternate;}
+#obase-hint{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:20;font-size:14px;font-weight:900;color:#66ddff;text-shadow:0 0 10px #00aaff;display:none;pointer-events:none;animation:pulse-hint 1s ease-in-out infinite alternate;}
 .wl-muts{display:block;font-size:13px;letter-spacing:2px;text-align:center;margin-bottom:2px;}
 #luck-overlay{position:fixed;bottom:18px;left:10px;z-index:60;background:rgba(0,0,0,0.82);border:2px solid #ff44ff;border-radius:6px;padding:8px 14px;font-family:monospace;font-weight:900;font-size:13px;color:#ff88ff;display:none;text-align:center;pointer-events:none;}
 #luck-overlay .lo-big{font-size:22px;color:#ff00ff;text-shadow:0 0 10px #ff44ff;}
@@ -716,6 +717,7 @@ input,button{font-size:16px;touch-action:manipulation;}
 </div>
 <div id="lock-hint">クリックでマウス視点操作</div>
 <div id="base-hint">🏰 E キー でコレクションを見る</div>
+<div id="obase-hint">👥 友達の基地</div>
 <div id="luck-overlay"><div class="lo-big" id="lo-mult">×1</div><div id="lo-time">60s</div><div style="font-size:10px;color:#ff88aa">LUCK</div></div>
 <div id="big-event-banner"></div>
 <div id="upgrade-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;flex-direction:column;">
@@ -2780,7 +2782,7 @@ window.addEventListener('keyup',e=>{keys[e.code]=false;});
 
 function getTargetY(x,z,curY){
   // 相手の基地エリア
-  const inOBase=x>OBASE_X-10.5&&x<OBASE_STAIR_TX2&&z>OBASE_Z-7&&z<OBASE_Z+7;
+  const inOBase=x>OBASE_X-10.5&&x<OBASE_X+10.5&&z>OBASE_Z-7&&z<OBASE_Z+7;
   const inOTower=x>=OBASE_STAIR_TX1-0.5&&x<=OBASE_STAIR_TX2+0.5&&z>=STAIR_TZ1-0.5&&z<=STAIR_TZ2+0.5;
   if(inOBase||inOTower){
     const ol=_otherBase.level||1;
@@ -2854,6 +2856,17 @@ function updatePlayer(dt){
   if(inBase){
     const upHint=baseLevel<4?' | O キーでアップグレード':'';
     document.getElementById('base-hint').textContent='🏰 E キーでコレクションを見る'+upHint;
+  }
+  // 友達の基地近接ヒント
+  const distOBase=Math.hypot(player.pos.x-OBASE_X,player.pos.z-OBASE_Z);
+  const inOBaseArea=distOBase<13&&!!_otherBase._owner;
+  const obaseHintEl=document.getElementById('obase-hint');
+  if(obaseHintEl){
+    obaseHintEl.style.display=inOBaseArea?'block':'none';
+    if(inOBaseArea){
+      const nm=_otherPlayers[_otherBase._owner];
+      obaseHintEl.textContent='👥 '+(nm?nm.displayName+'の基地':'友達の基地');
+    }
   }
   if(isMobile){
     const mobBtns=document.getElementById('mob-btns');
@@ -3289,7 +3302,7 @@ function updateOtherBase(level,charCount,charIds,charSkins,bColor){
     if(bColor){
       const mat=new THREE.MeshStandardMaterial({color:new THREE.Color(bColor),transparent:true,opacity:0.35,depthWrite:false});
       _otherBase._bColorOverlay=new THREE.Mesh(new THREE.BoxGeometry(13,0.05,9),mat);
-      _otherBase._bColorOverlay.position.set(OBASE_X,0.54,OBASE_Z);
+      _otherBase._bColorOverlay.position.set(OBASE_X,0.62,OBASE_Z);
       scene.add(_otherBase._bColorOverlay);
     }
   }
@@ -4681,7 +4694,7 @@ function toggleMinimizeUI(){
   const lock=document.getElementById('lock-hint');
   const btn=document.getElementById('fs-btn');
   if(uiMinimized){
-    hud.style.opacity='0'; hud.style.pointerEvents='none';
+    if(!isMobile){hud.style.opacity='0'; hud.style.pointerEvents='none';}
     if(side)side.style.display='none';
     if(ctrl)ctrl.style.display='none';
     if(lock)lock.style.display='none';
