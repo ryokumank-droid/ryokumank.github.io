@@ -5532,9 +5532,9 @@ function _showStealNotif(text){
   _stealNotifTimer=setTimeout(()=>{el.style.display='none';},3500);
 }
 
-function _pvpBroadcast(data){
-  if(!_roomCode||!fbReady||!fbDb)return;
-  fbDb.ref(_rpPath(_roomCode)+'/pvp/'+fbSaveName()).set({...data,t:Date.now()}).catch(()=>{});
+function _pvpBroadcast(targetKey,data){
+  if(!_roomCode||!fbReady||!fbDb||!targetKey)return;
+  fbDb.ref(_rpPath(_roomCode)+'/pvp/'+targetKey).set({...data,t:Date.now()}).catch(()=>{});
 }
 
 function doSteal(){
@@ -5579,27 +5579,28 @@ function doSteal(){
   mesh.scale.setScalar(1.0);
   mesh.userData.ownBase=false;
   mesh.position.set(player.pos.x, player.pos.y+3.2, player.pos.z);
-  _pvpStolenChar={mesh, charName, charDef};
+  _pvpStolenChar={mesh, charName, charDef, victimKey:_otherBase._owner};
   _showStealNotif(charName+'\nを盗んだ！\n自分の基地に持ち帰れ！');
   document.getElementById('badge-stolen').style.display='';
   document.getElementById('mob-steal').style.background='rgba(0,180,0,0.88)';
-  _pvpBroadcast({type:'steal',charName,by:PLAYER_NAME});
+  _pvpBroadcast(_otherBase._owner,{type:'steal',charName,by:PLAYER_NAME});
   showPopup('🎒 '+charName+'\n基地に持ち帰れ！','#ff4444');
 }
 
 function _returnStolenChar(){
   if(!_pvpStolenChar)return;
+  const victimKey=_pvpStolenChar.victimKey;
   scene.remove(_pvpStolenChar.mesh);
   _pvpStolenChar=null;
   document.getElementById('badge-stolen').style.display='none';
   document.getElementById('mob-steal').style.background='rgba(180,0,0,0.88)';
   _showStealNotif('キャラを\n取り返された！');
-  _pvpBroadcast({type:'returned',by:PLAYER_NAME});
+  _pvpBroadcast(victimKey,{type:'returned',by:PLAYER_NAME});
 }
 
 function _collectStolenChar(){
   if(!_pvpStolenChar)return;
-  const {mesh,charName,charDef}=_pvpStolenChar;
+  const {mesh,charName,charDef,victimKey}=_pvpStolenChar;
   _pvpStolenChar=null;
   document.getElementById('badge-stolen').style.display='none';
   document.getElementById('mob-steal').style.background='rgba(180,0,0,0.88)';
@@ -5611,7 +5612,7 @@ function _collectStolenChar(){
     scene.remove(mesh);
     showPopup('🎒 基地が満杯！\nキャラを置けなかった','#ff8800');
   }
-  _pvpBroadcast({type:'collected',by:PLAYER_NAME});
+  _pvpBroadcast(victimKey,{type:'collected',by:PLAYER_NAME});
 }
 
 function toggleBarrier(){
@@ -5721,6 +5722,11 @@ function loop(ts){
   // 相手プレイヤーのぬるぬる移動（lerp補間）
   for(const op of Object.values(_otherPlayers)){
     if(op.targetPos&&op.mesh) op.mesh.position.lerp(op.targetPos,Math.min(1,dt*8));
+    if(op.stolenMesh&&op.mesh){
+      op.stolenMesh.position.set(op.mesh.position.x,op.mesh.position.y+3.0+Math.sin(t*3)*0.15,op.mesh.position.z);
+      op.stolenMesh.rotation.y=t*1.5;
+      op.stolenMesh.scale.setScalar(0.5*(0.9+Math.sin(t*4)*0.05));
+    }
   }
   // 相手基地キャラのふわふわアニメ（ownBase マーカーで自分のキャラを保護）
   _otherBase.charMeshes.forEach((m,i)=>{
@@ -6030,6 +6036,10 @@ function joinRoom(code){
       } else if(d.type==='returned'){
         _pvpGotStolen=null;
         _showStealNotif('キャラが戻った');
+      } else if(d.type==='collected'){
+        _pvpGotStolen=null;
+        _showStealNotif((d.by||'?')+'に\nキャラを持ち去られた…');
+        _pvpRef.remove().catch(()=>{});
       }
     });
   }
@@ -6052,6 +6062,7 @@ function broadcastMyPos(){
     bColor:baseCustomColor||null,
     barrier:_pvpBarrier||false,
     invis:_pvpInvisible||false,
+    stolenChar:(_pvpStolenChar&&_pvpStolenChar.charDef)?_pvpStolenChar.charDef.id:null,
     t:Date.now()
   }).catch(()=>{});
 }
@@ -6097,6 +6108,22 @@ function _updateOtherPlayer(key,pos){
   op.label.innerHTML=`<span class="wl-name" style="color:#00ddff">👤 ${pos.name||key}${pos.invis?' 👁️':''}</span>`;
   // バリアフラグ（友達の基地に反映）
   _otherBase._barrierOn=!!pos.barrier;
+  // 盗んだキャラを頭上に表示（盗まれた側にも見えるように）
+  const stolenId=pos.stolenChar||null;
+  if(stolenId!==op._stolenId){
+    if(op.stolenMesh){scene.remove(op.stolenMesh);op.stolenMesh=null;}
+    op._stolenId=stolenId;
+    if(stolenId){
+      const sch=CHARS.find(c=>c.id===stolenId);
+      if(sch){
+        const sm=buildCharMesh(sch);
+        sm.scale.setScalar(0.5);
+        sm.userData.ownBase=false;
+        scene.add(sm);
+        op.stolenMesh=sm;
+      }
+    }
+  }
   // 相手の基地を更新（最初の他プレイヤーのみ）
   if(!_otherBase._owner||_otherBase._owner===key){
     _otherBase._owner=key;
@@ -6108,6 +6135,7 @@ function _removeOtherPlayer(key){
   if(_otherBase._owner===key){destroyOtherBase();_otherBase._owner=null;}
   if(_otherPlayers[key]){
     scene.remove(_otherPlayers[key].mesh);
+    if(_otherPlayers[key].stolenMesh)scene.remove(_otherPlayers[key].stolenMesh);
     if(_otherPlayers[key].label)_otherPlayers[key].label.remove();
     delete _otherPlayers[key];
   }
